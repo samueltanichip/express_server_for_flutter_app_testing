@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'nodejs' // Nome da instalação do Node no Jenkins
+        nodejs 'nodejs' // Nome exato da instalação do Node no Jenkins
     }
 
     environment {
-        // Configura o PATH corretamente para Windows
-        PATH = "C:\\Windows\\System32;C:\\Program Files\\Git\\bin;${env.PATH}"
+        // Garante que o sistema encontrará os comandos básicos
+        PATH = "C:\\Windows\\System32;${env.PATH}"
     }
 
     stages {
@@ -22,10 +22,10 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Verifica comandos básicos primeiro
-                    bat 'where cmd.exe'
-                    bat 'where node.exe'
-                    bat 'where npm.cmd'
+                    // Verifica se os comandos básicos funcionam
+                    bat 'where cmd'
+                    bat 'where node'
+                    bat 'where npm'
                     
                     // Instala dependências
                     bat 'npm install'
@@ -33,44 +33,16 @@ pipeline {
             }
         }
 
-        stage('Install pm2') {
-            steps {
-                bat 'npm install -g pm2'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-            script {
-            // Configuração robusta para Windows
+        stage('Start Application') {
+    steps {
+        script {
+            // Mata processos existentes e inicia em background
             bat '''
                 @echo off
-                SET PM2_HOME=%WORKSPACE%\\.pm2
-                
-                echo 1. Matando processos existentes...
-                taskkill /F /IM node.exe /T > nul 2>&1 || echo "Nenhum processo Node para matar"
-                
-                echo 2. Limpando instâncias PM2 anteriores...
-                pm2 delete all || echo "Nenhum processo PM2 para deletar"
-                
-                echo 3. Iniciando servidor...
-                pm2 start server.js --name server -o server-out.log -e server-err.log
-                
-                echo 4. Salvando configuração...
-                pm2 save || echo "PM2 save falhou"
-                
-                echo 5. Status atual:
-                pm2 list
-                
-                echo 6. Verificando porta 3000:
-                netstat -ano | findstr :3000 || echo "Porta 3000 não está em uso"
-                
-                echo 7. Últimos logs:
-                type server-out.log || echo "Sem logs de saída"
-                type server-err.log || echo "Sem logs de erro"
-                
-                echo 8. Testando endpoint...
-                curl -v http://localhost:3000 || echo "Falha ao acessar servidor"
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000') do (
+                    taskkill /f /pid %%a
+                )
+                start "NodeServer" cmd /c "node server.js"
             '''
         }
     }
@@ -79,12 +51,10 @@ pipeline {
 
     post {
         always {
-            echo 'Pipeline concluída - Status final: ${currentBuild.currentResult}'
-        }
-        failure {
-            echo 'Pipeline falhou - Verifique os logs para detalhes'
-            bat 'pm2 list'
-            bat 'netstat -ano'
+            echo 'Pipeline concluído'
+            // Opcional: matar processos node se necessário
+            // bat 'taskkill /F /IM node.exe /T'
         }
     }
 }
+

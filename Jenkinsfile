@@ -42,18 +42,21 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Para qualquer instância existente
-                    bat 'pm2 delete server || echo "Nenhum processo para deletar"'
+                    // Configura variáveis necessárias para o PM2 no Windows
+                    bat '''
+                        SET HOMEPATH=%USERPROFILE%
+                        SET PM2_HOME=%HOMEPATH%\\.pm2
+                        
+                        pm2 delete all || echo "Nenhum processo para deletar"
+                        pm2 start server.js --name server -o server.log -e error.log
+                        pm2 save
+                        pm2 list
+                        type server.log
+                        type error.log
+                    '''
                     
-                    // Inicia o servidor
-                    bat 'pm2 start server.js --name server'
-                    
-                    // Mostra logs
-                    bat 'pm2 logs server --lines 10'
-                    
-                    // Verifica se está rodando
-                    bat 'pm2 list'
-                    bat 'netstat -ano | findstr :3000'
+                    // Verifica se a porta está respondendo
+                    bat 'curl -v http://localhost:3000 || echo "Servidor não respondeu"'
                 }
             }
         }

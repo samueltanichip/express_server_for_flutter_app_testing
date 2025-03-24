@@ -1,29 +1,32 @@
-pipeline{
+pipeline {
     agent any
-    tools {nodejs "nodejs"}
+    tools { nodejs "nodejs" }
+    
     stages {
-        stage('Clone Repository'){
-            steps{
+        stage('Clone Repository') {
+            steps {
                 git branch: 'main',
                     url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
             }
         }
         
-        stage('Install Dependencies'){
+        stage('Install Dependencies') {
             steps {
-                bat 'npm install'
+                bat '"C:\\Windows\\System32\\cmd.exe" /c npm install'
             }
         }
-         stage('Install pm2'){
+
+        stage('Install pm2') {
             steps {
-                bat 'npm install pm2 -g'
+                bat '"C:\\Windows\\System32\\cmd.exe" /c npm install pm2 -g'
             }
         }
-        
-        stage('Deploy'){
+
+        stage('Deploy') {
             steps {
-                bat 'pm2 startOrRestart pm2.config.json'
+                bat '"C:\\Windows\\System32\\cmd.exe" /c pm2 startOrRestart pm2.config.json'
             }
         }
     }
 }
+

@@ -12,21 +12,20 @@ pipeline {
         
         stage('Install Dependencies') {
             steps {
-                bat '"C:\\Windows\\System32\\cmd.exe" /c npm install'
+                bat 'powershell -Command "npm install"'
             }
         }
 
         stage('Install pm2') {
             steps {
-                bat '"C:\\Windows\\System32\\cmd.exe" /c npm install pm2 -g'
+                bat 'powershell -Command "npm install pm2 -g"'
             }
         }
 
         stage('Deploy') {
             steps {
-                bat '"C:\\Windows\\System32\\cmd.exe" /c pm2 startOrRestart pm2.config.json'
+                bat 'powershell -Command "pm2 startOrRestart pm2.config.json"'
             }
         }
     }
 }
-

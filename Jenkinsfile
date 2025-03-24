@@ -6,7 +6,7 @@ pipeline {
         GIT_PATH = "C:\\Program Files\\Git\\bin"
         SYSTEM_ROOT = "C:\\Windows\\System32"
         PATH = "${env.SYSTEM_ROOT};${env.NODE_PATH};${env.GIT_PATH};${env.PATH}"
-        APP_PORT = "3000" // Porta do seu servidor
+        APP_PORT = "3000"
     }
     
     stages {
@@ -15,11 +15,7 @@ pipeline {
                 script {
                     def commands = ['cmd', 'node', 'npm', 'git']
                     commands.each { cmd ->
-                        try {
-                            bat "where ${cmd}"
-                        } catch (Exception e) {
-                            error("FALHA CRÍTICA: ${cmd} não encontrado no PATH.")
-                        }
+                        bat "where ${cmd}"
                     }
                 }
             }
@@ -27,7 +23,7 @@ pipeline {
         
         stage('Checkout') {
             steps {
-                cleanWs() // Limpa o workspace antes do checkout
+                cleanWs()
                 bat """
                     git --version
                     git config --global --add safe.directory *
@@ -49,10 +45,10 @@ pipeline {
         stage('Executar Testes') {
             steps {
                 script {
-                    // Ignora falha se não houver testes configurados
+                    // Continua mesmo sem testes configurados
                     bat """
                         cd /d "%WORKSPACE%"
-                        npm test || echo "Nenhum teste configurado - continuando..."
+                        npm test || exit 0
                     """
                 }
             }
@@ -61,18 +57,10 @@ pipeline {
         stage('Iniciar Servidor') {
             steps {
                 script {
-                    // Inicia o servidor em background
+                    // Inicia o servidor em primeiro plano
                     bat """
                         cd /d "%WORKSPACE%"
-                        start "Node Server" cmd /c "npm start"
-                    """
-                    
-                    // Espera o servidor iniciar
-                    sleep(time: 10, unit: 'SECONDS')
-                    
-                    // Verifica se o servidor está respondendo
-                    bat """
-                        curl -I http://localhost:%APP_PORT% || echo "Verificação do servidor falhou"
+                        npm start
                     """
                 }
             }
@@ -82,8 +70,10 @@ pipeline {
     post {
         always {
             script {
-                // Mata o processo do servidor Node.js ao final
-                bat 'taskkill /F /IM node.exe /T || echo "Nenhum processo Node.js encontrado"'
+                // Tentativa mais robusta de encerrar o Node.js
+                bat """
+                    taskkill /F /IM node.exe /T > nul 2>&1 || echo "Nenhum processo Node.js para encerrar"
+                """
                 cleanWs()
             }
             echo "Status final: ${currentBuild.currentResult}"

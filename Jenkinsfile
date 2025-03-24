@@ -2,11 +2,9 @@ pipeline {
     agent any
     
     environment {
-        NODE_PORT = "3000"
-        PATH = "C:\\Windows\\System32;C:\\Program Files\\nodejs;C:\\Program Files\\Git\\bin;${env.PATH}"
-        S3_BUCKET = "seu-bucket-s3" // Substitua pelo nome do seu bucket
-        AWS_REGION = "us-east-1" // Altere para sua região
-        APP_NAME = "express-server"
+        S3_BUCKET = "jenkins-teste"       // ← Substitua pelo seu bucket
+        AWS_REGION = "us-east-1"          // ← Altere para sua região AWS
+        APP_NAME = "express-server"       // ← Nome do seu projeto
     }
     
     stages {
@@ -14,52 +12,31 @@ pipeline {
             steps {
                 cleanWs()
                 checkout scm
-                bat 'npm install'
-                bat 'npm run build' // Certifique-se de ter um script 'build' no package.json
+                bat 'npm install --production'  // Instala apenas dependências de produção
             }
         }
         
-        stage('Empacotamento') {
+        stage('Empacotar') {
             steps {
-                script {
-                    // Cria um arquivo ZIP com os arquivos necessários
-                    bat """
-                        mkdir deploy
-                        xcopy /E /I /Y .\\* deploy\\${APP_NAME}
-                        powershell Compress-Archive -Path deploy\\${APP_NAME} -DestinationPath ${APP_NAME}.zip
-                    """
-                }
+                bat """
+                    mkdir deploy
+                    xcopy /E /I /Y package.json deploy\\
+                    xcopy /E /I /Y package-lock.json deploy\\
+                    xcopy /E /I /Y server.js deploy\\
+                    xcopy /E /I /Y src deploy\\src\\      // Inclui sua pasta de código
+                    cd deploy
+                    powershell Compress-Archive -Path .\\* -DestinationPath ..\\${APP_NAME}.zip
+                    cd ..
+                """
             }
         }
         
         stage('Upload para S3') {
             steps {
-                script {
-                    // Instala a AWS CLI se necessário
-                    bat 'aws --version || pip install awscli'
-                    
-                    // Configura as credenciais AWS (armazene de forma segura no Jenkins)
-                    withAWS(credentials: 'AKIAR7HWXUVMKEQQNE7T', region: "${us-east-1}") {
-                        bat """
-                            aws s3 cp ${teste}.zip s3://${jenkins-teste}/${teste}/${teste}-${env.BUILD_NUMBER}.zip
-                            aws s3 cp s3://${jenkins-teste}/${teste}/${teste}-${env.BUILD_NUMBER}.zip s3://${jenkins-teste}/${teste}/latest.zip
-                        """
-                    }
-                }
-            }
-        }
-        
-        stage('Deploy no Servidor') {
-            steps {
-                script {
-                    // Adicione aqui os comandos para implantação no seu servidor
-                    // Exemplo para EC2 (substitua pelos seus comandos reais):
+                withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
                     bat """
-                        aws s3 cp s3://${jenkins-teste}/${teste}/latest.zip .
-                        powershell Expand-Archive -Path latest.zip -DestinationPath /opt/${APP_NAME} -Force
-                        cd /opt/${teste}
-                        npm install --production
-                        pm2 restart ${teste} || pm2 start server.js --name ${teste}
+                        aws s3 cp ${APP_NAME}.zip s3://${S3_BUCKET}/${APP_NAME}/v${BUILD_NUMBER}.zip
+                        aws s3 cp s3://${S3_BUCKET}/${APP_NAME}/v${BUILD_NUMBER}.zip s3://${S3_BUCKET}/${APP_NAME}/latest.zip
                     """
                 }
             }
@@ -68,11 +45,9 @@ pipeline {
     
     post {
         always {
+            bat 'taskkill /F /IM node.exe /T > nul 2>&1 || echo "Nenhum processo para encerrar"'
             cleanWs()
-            echo "Pipeline finalizada. Status: ${currentBuild.currentResult}"
-        }
-        success {
-            echo "Aplicação ${APP_NAME} versão ${env.BUILD_NUMBER} deployada com sucesso no S3!"
+            echo "Deploy concluído. Status: ${currentBuild.currentResult}"
         }
     }
 }

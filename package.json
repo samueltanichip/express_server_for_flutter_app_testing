@@ -1,9 +1,12 @@
 {
   "name": "expresstest",
   "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "jest --passWithNoTests || exit 0"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "forever --minUptime 5000 --spinSleepTime 3000 start server.js",
+    "server": "pm2 start server.js --watch"
   },
   "dependencies": {
     "express": "^4.18.2"

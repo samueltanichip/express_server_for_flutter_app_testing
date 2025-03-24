@@ -34,17 +34,19 @@ pipeline {
         }
 
         stage('Start Application') {
-            steps {
-                script {
-                    // Inicia a aplicação
-                    bat 'node server.js'
-                    
-                    // Alternativa com PM2 se necessário
-                    // bat 'npm install -g pm2'
-                    // bat 'pm2 start server.js'
-                }
-            }
+    steps {
+        script {
+            // Mata processos existentes e inicia em background
+            bat '''
+                @echo off
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000') do (
+                    taskkill /f /pid %%a
+                )
+                start "NodeServer" cmd /c "node server.js"
+            '''
         }
+    }
+}
     }
 
     post {

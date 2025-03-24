@@ -19,7 +19,7 @@ const auth = (req,res,  next) => {
 	next();
 }
 app.get('/',  (req, res) => {
-	res.send('Hello World!');
+	res.send('testeeee');
   })
 app.get('/testgetrequest',  (req, res) => {
 	res.send('Hello World!');

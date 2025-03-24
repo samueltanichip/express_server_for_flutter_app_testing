@@ -41,25 +41,40 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                script {
-                    // Configura variáveis necessárias para o PM2 no Windows
-                    bat '''
-                        SET HOMEPATH=%USERPROFILE%
-                        SET PM2_HOME=%HOMEPATH%\\.pm2
-                        
-                        pm2 delete all || echo "Nenhum processo para deletar"
-                        pm2 start server.js --name server -o server.log -e error.log
-                        pm2 save
-                        pm2 list
-                        type server.log
-                        type error.log
-                    '''
-                    
-                    // Verifica se a porta está respondendo
-                    bat 'curl -v http://localhost:3000 || echo "Servidor não respondeu"'
-                }
-            }
+            script {
+            // Configuração robusta para Windows
+            bat '''
+                @echo off
+                SET PM2_HOME=%WORKSPACE%\\.pm2
+                
+                echo 1. Matando processos existentes...
+                taskkill /F /IM node.exe /T > nul 2>&1 || echo "Nenhum processo Node para matar"
+                
+                echo 2. Limpando instâncias PM2 anteriores...
+                pm2 delete all || echo "Nenhum processo PM2 para deletar"
+                
+                echo 3. Iniciando servidor...
+                pm2 start server.js --name server -o server-out.log -e server-err.log
+                
+                echo 4. Salvando configuração...
+                pm2 save || echo "PM2 save falhou"
+                
+                echo 5. Status atual:
+                pm2 list
+                
+                echo 6. Verificando porta 3000:
+                netstat -ano | findstr :3000 || echo "Porta 3000 não está em uso"
+                
+                echo 7. Últimos logs:
+                type server-out.log || echo "Sem logs de saída"
+                type server-err.log || echo "Sem logs de erro"
+                
+                echo 8. Testando endpoint...
+                curl -v http://localhost:3000 || echo "Falha ao acessar servidor"
+            '''
         }
+    }
+}
     }
 
     post {

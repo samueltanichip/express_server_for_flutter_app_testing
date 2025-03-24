@@ -1,29 +1,57 @@
-pipeline{
+pipeline {
     agent any
-    tools {nodejs "nodejs"}
+
+    tools {
+        nodejs 'NodeJS' // Nome exato da instalação do Node no Jenkins
+    }
+
+    environment {
+        // Garante que o sistema encontrará os comandos básicos
+        PATH = "C:\\Windows\\System32;${env.PATH}"
+    }
+
     stages {
-        stage('Clone Repository'){
-            steps{
-                git branch: 'main',
-                    url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', 
+                         branches: [[name: '*/main']],
+                         userRemoteConfigs: [[url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git']]])
             }
         }
-        
-        stage('Install Dependencies'){
+
+        stage('Install Dependencies') {
             steps {
-                bat 'npm install'
+                script {
+                    // Verifica se os comandos básicos funcionam
+                    bat 'where cmd'
+                    bat 'where node'
+                    bat 'where npm'
+                    
+                    // Instala dependências
+                    bat 'npm install'
+                }
             }
         }
-         stage('Install pm2'){
+
+        stage('Start Application') {
             steps {
-                bat 'npm install pm2 -g'
+                script {
+                    // Inicia a aplicação
+                    bat 'node server.js'
+                    
+                    // Alternativa com PM2 se necessário
+                    // bat 'npm install -g pm2'
+                    // bat 'pm2 start server.js'
+                }
             }
         }
-        
-        stage('Deploy'){
-            steps {
-                bat 'pm2 startOrRestart pm2.config.json'
-            }
+    }
+
+    post {
+        always {
+            echo 'Pipeline concluído'
+            // Opcional: matar processos node se necessário
+            // bat 'taskkill /F /IM node.exe /T'
         }
     }
 }

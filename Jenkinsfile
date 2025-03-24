@@ -2,21 +2,26 @@ pipeline {
     agent any
     
     environment {
-        NODE_PATH = "C:\\Program Files\\nodejs"
-        PATH = "${env.NODE_PATH};${env.PATH}"
-        APP_PORT = "3000"
+        // Defina os caminhos absolutos para as ferramentas necessárias
+        SYSTEM_ROOT = "C:\\Windows\\System32"
+        NODEJS_PATH = "C:\\Program Files\\nodejs"
+        GIT_PATH = "C:\\Program Files\\Git\\bin"
+        
+        // Configure o PATH corretamente
+        PATH = "${env.SYSTEM_ROOT};${env.NODEJS_PATH};${env.GIT_PATH};${env.PATH}"
     }
     
     stages {
-        stage('Preparar Ambiente') {
+        stage('Verificar Ambiente') {
             steps {
-                cleanWs()
                 script {
-                    try {
-                        bat 'npm list -g forever || npm install -g forever'
-                    } catch (e) {
-                        echo "Erro ao instalar forever: ${e.message}"
-                    }
+                    // Verifica se os executáveis essenciais estão disponíveis
+                    bat """
+                        where cmd
+                        where node
+                        where npm
+                        where git
+                    """
                 }
             }
         }
@@ -24,7 +29,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout([
-                    $class: 'GitSCM', 
+                    $class: 'GitSCM',
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git']]
                 ])
@@ -33,14 +38,14 @@ pipeline {
         
         stage('Instalar Dependências') {
             steps {
-                bat 'npm install'
+                bat "npm install"
             }
         }
         
         stage('Executar Testes') {
             steps {
                 script {
-                    bat 'npm test || exit 0'
+                    bat "npm test || exit 0"
                 }
             }
         }
@@ -48,9 +53,8 @@ pipeline {
         stage('Iniciar Servidor') {
             steps {
                 script {
-                    bat 'forever start server.js'
-                    sleep(time: 10, unit: 'SECONDS')
-                    bat "curl -I http://localhost:%APP_PORT% || echo \"Verificação do servidor falhou\""
+                    // Inicia o servidor em primeiro plano
+                    bat "node server.js"
                 }
             }
         }
@@ -58,14 +62,8 @@ pipeline {
     
     post {
         always {
-            script {
-                bat '''
-                    forever stopall || echo "Nenhum processo forever para encerrar"
-                    taskkill /F /IM node.exe /T > nul 2>&1 || echo "Nenhum processo Node.js para encerrar"
-                '''
-                cleanWs()
-            }
-            echo "Status final: ${currentBuild.currentResult}"
+            echo "Build status: ${currentBuild.currentResult}"
+            cleanWs()
         }
     }
 }

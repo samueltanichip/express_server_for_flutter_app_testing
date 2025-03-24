@@ -2,42 +2,48 @@ pipeline {
     agent any
     
     environment {
-        S3_BUCKET = "jenkins-teste"       // ← Substitua pelo seu bucket
-        AWS_REGION = "us-east-1"          // ← Altere para sua região AWS
-        APP_NAME = "express-server"       // ← Nome do seu projeto
+        NODE_PORT = "3000"
+        PATH = "C:\\Windows\\System32;C:\\Program Files\\nodejs;C:\\Program Files\\Git\\bin;${env.PATH}"
     }
     
     stages {
-        stage('Preparação') {
+        stage('Checkout') {
             steps {
                 cleanWs()
                 checkout scm
-                bat 'npm install --production'  // Instala apenas dependências de produção
             }
         }
         
-        stage('Empacotar') {
+        stage('Instalar Dependências') {
             steps {
-                bat """
-                    mkdir deploy
-                    xcopy /E /I /Y package.json deploy\\
-                    xcopy /E /I /Y package-lock.json deploy\\
-                    xcopy /E /I /Y server.js deploy\\
-                    xcopy /E /I /Y src deploy\\src\\      // Inclui sua pasta de código
-                    cd deploy
-                    powershell Compress-Archive -Path .\\* -DestinationPath ..\\${APP_NAME}.zip
-                    cd ..
-                """
+                bat 'npm install'
             }
         }
         
-        stage('Upload para S3') {
+        stage('Iniciar Servidor') {
             steps {
-                withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
-                    bat """
-                        aws s3 cp ${APP_NAME}.zip s3://${S3_BUCKET}/${APP_NAME}/v${BUILD_NUMBER}.zip
-                        aws s3 cp s3://${S3_BUCKET}/${APP_NAME}/v${BUILD_NUMBER}.zip s3://${S3_BUCKET}/${APP_NAME}/latest.zip
-                    """
+                script {
+                    // Inicia o servidor em background usando start
+                    bat 'start "NodeServer" /B node server.js'
+                    
+                    // Espera o servidor iniciar
+                    sleep(time: 5, unit: 'SECONDS')
+                    
+                    // Verifica se o servidor está rodando
+                    bat "tasklist /FI \"IMAGENAME eq node.exe\" | find \"node.exe\""
+                    bat "curl -I http://localhost:%NODE_PORT% || echo \"Verificação falhou\""
+                }
+            }
+        }
+        
+        stage('Testar Servidor') {
+            steps {
+                script {
+                    // Mantém o servidor rodando por tempo limitado para testes
+                    timeout(time: 1, unit: 'MINUTES') {
+                        bat "echo Testando servidor na porta %NODE_PORT%..."
+                        // Adicione aqui seus testes de integração se necessário
+                    }
                 }
             }
         }
@@ -45,9 +51,16 @@ pipeline {
     
     post {
         always {
-            bat 'taskkill /F /IM node.exe /T > nul 2>&1 || echo "Nenhum processo para encerrar"'
-            cleanWs()
-            echo "Deploy concluído. Status: ${currentBuild.currentResult}"
+            script {
+                // Encerra todos os processos Node.js de forma robusta
+                bat '''
+                    taskkill /FI "WINDOWTITLE eq NodeServer*" /T /F > nul 2>&1
+                    taskkill /F /IM node.exe /T > nul 2>&1
+                    echo Processos Node.js encerrados
+                '''
+                cleanWs()
+            }
+            echo "Pipeline finalizada. Status: ${currentBuild.currentResult}"
         }
     }
 }

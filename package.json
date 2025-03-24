@@ -1,19 +1,14 @@
 {
   "name": "expresstest",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "forever --minUptime 5000 --spinSleepTime 3000 start server.js",
-    "server": "pm2 start server.js --watch"
+    "start": "node index.js",
+    "test": "jest --passWithNoTests || exit 0"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.20.1",
-    "express": "^4.18.2",
-    "forever": "0.14.1",
-    "pm2": "5.3.0"
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

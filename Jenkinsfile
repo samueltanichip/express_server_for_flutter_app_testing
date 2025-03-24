@@ -7,19 +7,19 @@ pipeline {
         APP_PORT = "3000"
     }
     
-    stages {
-        stage('Preparar Ambiente') {
-            steps {
-                cleanWs()
-                script {
-                    // Verifica e instala o forever globalmente se necessário
-                    try {
-                        bat 'npm list -g forever || npm install -g forever'
-                    } catch (e) {
-                        echo "Erro ao instalar forever: ${e.message}"
-                    }
-                }
-            }
+    stage('Iniciar Servidor') {
+    steps {
+        script {
+            // Inicia o servidor em background
+            bat 'start "Node Server" /B node server.js'
+            
+            // Verificação
+            sleep(time: 10, unit: 'SECONDS')
+            bat "tasklist /FI \"IMAGENAME eq node.exe\" || echo \"Servidor não iniciou\""
+            bat "curl -I http://localhost:%APP_PORT% || echo \"Verificação do servidor falhou\""
+        }
+    }
+}
         }
         
         stage('Checkout') {

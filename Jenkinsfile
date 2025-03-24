@@ -2,18 +2,41 @@ pipeline {
     agent any
     
     environment {
+        // Ajuste esses caminhos conforme sua instalação
         NODE_PATH = "C:\\Program Files\\nodejs"
-        CI = 'true' // Variável de ambiente para modo CI
+        GIT_PATH = "C:\\Program Files\\Git\\bin"
+        SYSTEM_ROOT = "C:\\Windows\\System32"
+        
+        // Combine todos os paths necessários
+        PATH = "${env.SYSTEM_ROOT};${env.NODE_PATH};${env.GIT_PATH};${env.PATH}"
     }
     
     stages {
+        stage('Verificar Ambiente') {
+            steps {
+                script {
+                    // Lista todos os comandos que precisam funcionar
+                    def commands = ['cmd', 'node', 'npm', 'git']
+                    
+                    commands.each { cmd ->
+                        try {
+                            bat "where ${cmd}"
+                        } catch (Exception e) {
+                            error("FALHA CRÍTICA: ${cmd} não encontrado no PATH. Configure corretamente o ambiente.")
+                        }
+                    }
+                }
+            }
+        }
+        
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', 
-                          branches: [[name: '*/main']],
-                          userRemoteConfigs: [[url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git']],
-                          extensions: [[$class: 'CleanBeforeCheckout']] // Limpa o workspace antes
-                        ])
+                bat """
+                    git --version
+                    git config --global --add safe.directory *
+                    git clone https://github.com/samueltanichip/express_server_for_flutter_app_testing.git .
+                    git checkout main
+                """
             }
         }
         
@@ -33,36 +56,12 @@ pipeline {
                     npm test
                 """
             }
-            
-            post {
-                always {
-                    junit 'junit.xml' // Se você configurar relatórios JUnit
-                }
-            }
-        }
-        
-        stage('Iniciar Servidor') {
-            steps {
-                bat """
-                    cd /d "%WORKSPACE%"
-                    npm start &
-                """
-            }
         }
     }
     
     post {
         always {
-            echo "Build status: ${currentBuild.currentResult}"
-            script {
-                if(currentBuild.currentResult == 'FAILURE') {
-                    emailext body: "Build ${currentBuild.fullDisplayName} falhou. Consulte: ${env.BUILD_URL}",
-                            subject: "ERRO: Build ${env.JOB_NAME} falhou",
-                            to: 'seu-email@exemplo.com'
-                }
-            }
-        }
-        cleanup {
+            echo "Status final: ${currentBuild.currentResult}"
             cleanWs() // Limpa o workspace
         }
     }

@@ -1,11 +1,11 @@
 pipeline{
     agent any
-    tools {nodejs "Node"}
+    tools {nodejs "nodejs"}
     stages {
         stage('Clone Repository'){
             steps{
                 git branch: 'main',
-                    url: 'https://github.com/MIRTAHAALI/express_server_for_flutter_app_testing.git'
+                    url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
             }
         }
         

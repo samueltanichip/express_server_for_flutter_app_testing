@@ -2,59 +2,58 @@ pipeline {
     agent any
     
     environment {
-        // Defina os caminhos absolutos para as ferramentas necessárias
-        SYSTEM_ROOT = "C:\\Windows\\System32"
-        NODEJS_PATH = "C:\\Program Files\\nodejs"
-        GIT_PATH = "C:\\Program Files\\Git\\bin"
-        
-        // Configure o PATH corretamente
-        PATH = "${env.SYSTEM_ROOT};${env.NODEJS_PATH};${env.GIT_PATH};${env.PATH}"
+        NODE_PORT = "3000"
+        PATH = "C:\\Windows\\System32;C:\\Program Files\\nodejs;C:\\Program Files\\Git\\bin;${env.PATH}"
     }
     
     stages {
-        stage('Verificar Ambiente') {
+        stage('Preparar Ambiente') {
             steps {
-                script {
-                    // Verifica se os executáveis essenciais estão disponíveis
-                    bat """
-                        where cmd
-                        where node
-                        where npm
-                        where git
-                    """
-                }
+                cleanWs()
+                bat 'where node && where npm && where git'
             }
         }
         
         stage('Checkout') {
             steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/main']],
-                    userRemoteConfigs: [[url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git']]
-                ])
+                checkout scm
             }
         }
         
         stage('Instalar Dependências') {
             steps {
-                bat "npm install"
+                bat 'npm install'
             }
         }
         
         stage('Executar Testes') {
             steps {
                 script {
-                    bat "npm test || exit 0"
+                    bat 'npm test || exit 0'
                 }
             }
         }
         
-        stage('Iniciar Servidor') {
+        stage('Iniciar e Testar Servidor') {
             steps {
                 script {
-                    // Inicia o servidor em primeiro plano
-                    bat "node server.js"
+                    // Inicia o servidor em uma janela separada
+                    bat 'start "NodeJS_Server" cmd /c "node server.js & pause"'
+                    
+                    // Espera a inicialização
+                    sleep(time: 5, unit: 'SECONDS')
+                    
+                    // Verifica se o servidor está respondendo
+                    bat """
+                        curl -I http://localhost:%NODE_PORT%
+                        if errorlevel 1 (
+                            echo "Falha ao acessar o servidor na porta %NODE_PORT%"
+                            exit 1
+                        )
+                    """
+                    
+                    // Testes adicionais podem ser colocados aqui
+                    bat "echo Realizando testes de conexão..."
                 }
             }
         }
@@ -62,8 +61,16 @@ pipeline {
     
     post {
         always {
-            echo "Build status: ${currentBuild.currentResult}"
-            cleanWs()
+            script {
+                // Encerramento robusto de todos os processos Node.js
+                bat '''
+                    taskkill /FI "WINDOWTITLE eq NodeJS_Server*" /T /F > nul 2>&1
+                    taskkill /F /IM node.exe /T > nul 2>&1
+                    echo Todos os processos Node.js foram encerrados
+                '''
+                cleanWs()
+            }
+            echo "Pipeline finalizada. Status: ${currentBuild.currentResult}"
         }
     }
 }

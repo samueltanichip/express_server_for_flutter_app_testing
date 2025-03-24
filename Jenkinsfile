@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS' // Nome exato da instalação do Node no Jenkins
+        nodejs 'nodejs' // Nome exato da instalação do Node no Jenkins
     }
 
     environment {

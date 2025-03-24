@@ -6,7 +6,6 @@ pipeline {
     }
 
     environment {
-        // Garante que o sistema encontrará os comandos básicos
         PATH = "C:\\Windows\\System32;${env.PATH}"
     }
 
@@ -22,39 +21,50 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Verifica se os comandos básicos funcionam
-                    bat 'where cmd'
                     bat 'where node'
                     bat 'where npm'
-                    
-                    // Instala dependências
                     bat 'npm install'
                 }
             }
         }
 
-        stage('Start Application') {
-    steps {
-        script {
-            // Mata processos existentes e inicia em background
-            bat '''
-                @echo off
-                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000') do (
-                    taskkill /f /pid %%a
-                )
-                start "NodeServer" cmd /c "node server.js"
-            '''
+        stage('Kill Existing Node Process') {
+            steps {
+                script {
+                    bat '''
+                        @echo off
+                        for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8080') do (
+                            taskkill /f /pid %%a
+                        )
+                    '''
+                }
+            }
         }
-    }
-}
+
+        stage('Start Application') {
+            steps {
+                script {
+                    bat 'npm install -g pm2'  // Instala PM2 globalmente
+                    bat 'pm2 stop all'       // Para qualquer processo existente
+                    bat 'pm2 delete all'     // Remove processos antigos
+                    bat 'pm2 start server.js --name myApp'  // Inicia a aplicação com PM2
+                    bat 'pm2 save'           // Salva o estado do PM2
+                }
+            }
+        }
+
+        stage('Verify Application') {
+            steps {
+                script {
+                    bat 'pm2 list'  // Lista os processos ativos
+                }
+            }
+        }
     }
 
     post {
         always {
-            echo 'Pipeline concluído'
-            // Opcional: matar processos node se necessário
-            // bat 'taskkill /F /IM node.exe /T'
+            echo 'Pipeline concluída'
         }
     }
 }
-

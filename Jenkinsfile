@@ -2,8 +2,10 @@ pipeline {
     agent any
     
     environment {
-        AWS_REGION = 'us-east-1' // Altere para sua região
+        AWS_REGION = 'us-east-1'
         S3_BUCKET = 'jenkins-teste'
+        // Adicione o caminho do sistema ao PATH
+        PATH = "C:\\Windows\\System32;${env.PATH}"
     }
     
     stages {
@@ -16,13 +18,14 @@ pipeline {
         
         stage('Instalar Dependências') {
             steps {
-                bat 'npm install'
+                // Use o caminho completo para o npm
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" install'
             }
         }
         
         stage('Build') {
             steps {
-                bat 'npm run build' // Se seu projeto tiver um script build
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
             }
         }
         
@@ -30,7 +33,7 @@ pipeline {
             steps {
                 withAWS(region: env.AWS_REGION, credentials: 'AKIAR7HWXUVMH2T2PUJF') {
                     bat """
-                    aws s3 sync .\\ s3://%S3_BUCKET% ^
+                    "C:\\Program Files\\Amazon\\AWSCLI\\bin\\aws" s3 sync .\\ s3://%S3_BUCKET% ^
                     --exclude "node_modules\\*" ^
                     --exclude ".git\\*" ^
                     --delete

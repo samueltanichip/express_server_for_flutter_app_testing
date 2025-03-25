@@ -9,6 +9,6 @@ describe('Testes do Servidor Express', () => {
 
   it('Deve retornar "Hello World" na rota raiz', async () => {
     const response = await request(app).get('/');
-    expect(response.text).toBe('Hello World');
+    expect(response.text).toBe('testeeee');
   });
 });

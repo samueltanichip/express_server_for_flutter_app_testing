@@ -19,9 +19,9 @@ pipeline {
             steps {
                 script {
                     def requiredTools = [
-                        'node': 'node --version',
-                        'npm': 'npm --version',
-                        'git': 'git --version'
+                        'node': 'nodejs',
+                        'npm': 'npm',
+                        'git': 'git'
                     ]
                     
                     requiredTools.each { tool, cmd ->

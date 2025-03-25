@@ -33,7 +33,7 @@ pipeline {
             steps {
                 withAWS(region: env.AWS_REGION, credentials: '203891579') {
                     bat """
-                    "C:\Program Files\Amazon\AWSCLIV2\aws.exe" s3 sync .\\ s3://%S3_BUCKET% ^
+                    "C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe" s3 sync .\\ s3://%S3_BUCKET% ^
                     --exclude "node_modules\\*" ^
                     --exclude ".git\\*" ^
                     --delete

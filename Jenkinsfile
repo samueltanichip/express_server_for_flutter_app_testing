@@ -1,66 +1,60 @@
 pipeline {
     agent any
-    
-    environment {
-        NODE_PORT = "3000"
-        PATH = "C:\\Windows\\System32;C:\\Program Files\\nodejs;C:\\Program Files\\Git\\bin;${env.PATH}"
+
+    tools {
+        nodejs 'nodejs' // Nome exato da instalação do Node no Jenkins
     }
-    
+
+    environment {
+        // Garante que o sistema encontrará os comandos básicos
+        PATH = "C:\\Windows\\System32;${env.PATH}"
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                cleanWs()
-                checkout scm
+                checkout([$class: 'GitSCM', 
+                         branches: [[name: '*/main']],
+                         userRemoteConfigs: [[url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git']]])
             }
         }
-        
-        stage('Instalar Dependências') {
-            steps {
-                bat 'npm install'
-            }
-        }
-        
-        stage('Iniciar Servidor') {
+
+        stage('Install Dependencies') {
             steps {
                 script {
-                    // Inicia o servidor em background usando start
-                    bat 'start "NodeServer" /B node server.js'
+                    // Verifica se os comandos básicos funcionam
+                    bat 'where cmd'
+                    bat 'where node'
+                    bat 'where npm'
                     
-                    // Espera o servidor iniciar
-                    sleep(time: 5, unit: 'SECONDS')
-                    
-                    // Verifica se o servidor está rodando
-                    bat "tasklist /FI \"IMAGENAME eq node.exe\" | find \"node.exe\""
-                    bat "curl -I http://localhost:%NODE_PORT% || echo \"Verificação falhou\""
+                    // Instala dependências
+                    bat 'npm install'
                 }
             }
         }
-        
-        stage('Testar Servidor') {
-            steps {
-                script {
-                    // Mantém o servidor rodando por tempo limitado para testes
-                    timeout(time: 1, unit: 'MINUTES') {
-                        bat "echo Testando servidor na porta %NODE_PORT%..."
-                        // Adicione aqui seus testes de integração se necessário
-                    }
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                // Encerra todos os processos Node.js de forma robusta
-                bat '''
-                    taskkill /FI "WINDOWTITLE eq NodeServer*" /T /F > nul 2>&1
-                    taskkill /F /IM node.exe /T > nul 2>&1
-                    echo Processos Node.js encerrados
-                '''
-                cleanWs()
-            }
-            echo "Pipeline finalizada. Status: ${currentBuild.currentResult}"
+
+        stage('Start Application') {
+    steps {
+        script {
+            // Mata processos existentes e inicia em background
+            bat '''
+                @echo off
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000') do (
+                    taskkill /f /pid %%a
+                )
+                start "NodeServer" cmd /c "node server.js"
+            '''
         }
     }
 }
+    }
+
+    post {
+        always {
+            echo 'Pipeline concluído'
+            // Opcional: matar processos node se necessário
+            // bat 'taskkill /F /IM node.exe /T'
+        }
+    }
+}
+

@@ -31,7 +31,7 @@ pipeline {
         
         stage('Deploy para S3') {
             steps {
-                withAWS(region: env.AWS_REGION, credentials: 'AKIAR7HWXUVMH2T2PUJF') {
+                withAWS(region: env.AWS_REGION, credentials: '203891579') {
                     bat """
                     "C:\\Program Files\\Amazon\\AWSCLI\\bin\\aws" s3 sync .\\ s3://%S3_BUCKET% ^
                     --exclude "node_modules\\*" ^

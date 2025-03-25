@@ -2,78 +2,50 @@ pipeline {
     agent any
     
     environment {
-        // Configura caminhos absolutos para todas as ferramentas necessárias
-        WINDIR = "C:\\Windows"
-        SYSTEMROOT = "C:\\Windows"
-        SYSTEM32 = "${env.WINDIR}\\System32"
-        NODEJS = "C:\\Program Files\\nodejs"
-        GIT = "C:\\Program Files\\Git\\bin"
-        
-        // Configura o PATH de forma explícita
-        PATH = "${env.SYSTEM32};${env.NODEJS};${env.GIT};${env.PATH}"
+        AWS_REGION = 'us-east-1' // Altere para sua região
+        S3_BUCKET = 'jenkins-teste'
     }
     
     stages {
-        stage('Verificar Ambiente') {
+        stage('Checkout') {
             steps {
-                script {
-                    // Verifica cada comando com o caminho absoluto
-                    def tools = [
-                        'cmd': "${env.SYSTEM32}\\cmd.exe",
-                        'node': "${env.NODEJS}\\node.exe",
-                        'npm': "${env.NODEJS}\\npm.cmd",
-                        'git': "${env.GIT}\\git.exe"
-                    ]
-                    
-                    tools.each { name, path ->
-                        bat """
-                            if not exist "${path}" (
-                                echo ❌ ${name.toUpperCase()} não encontrado em ${path}
-                                exit /b 1
-                            ) else (
-                                echo ✅ ${name.toUpperCase()} encontrado: ${path}
-                            )
-                        """
-                    }
-                }
-            }
-        }
-        
-        stage('Checkout Código') {
-            steps {
-                // Usa o método nativo de checkout do Jenkins
-                checkout scm
+                git branch: 'main', 
+                url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
             }
         }
         
         stage('Instalar Dependências') {
             steps {
-                bat """
-                    "${env.NODEJS}\\npm.cmd" install
-                """
+                sh 'npm install'
             }
         }
         
-        stage('Executar Testes') {
+        stage('Build') {
             steps {
-                script {
-                    try {
-                        bat """
-                            "${env.NODEJS}\\npm.cmd" test || echo "⚠️ Testes falharam mas o pipeline continua"
-                        """
-                    } catch (e) {
-                        echo "⚠️ Erro nos testes: ${e}"
-                        currentBuild.result = 'UNSTABLE'
-                    }
+                sh 'npm run build' // Se seu projeto tiver um script build
+            }
+        }
+        
+        stage('Deploy para S3') {
+            steps {
+                withAWS(region: env.AWS_REGION, credentials: 'AKIAR7HWXUVMH2T2PUJF') {
+                    sh """
+                    aws s3 sync ./ s3://${env.S3_BUCKET} \
+                    --exclude "node_modules/*" \
+                    --exclude ".git/*" \
+                    --delete
+                    """
                 }
             }
         }
     }
     
     post {
-        always {
-            echo "Build finalizado com status: ${currentBuild.currentResult}"
-            cleanWs()
+        success {
+            echo 'Deploy para S3 concluído com sucesso!'
+        }
+        failure {
+            echo 'Falha no deploy para S3'
         }
     }
 }

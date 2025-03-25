@@ -16,23 +16,23 @@ pipeline {
         
         stage('Instalar Dependências') {
             steps {
-                sh 'npm install'
+                bat 'npm install'
             }
         }
         
         stage('Build') {
             steps {
-                sh 'npm run build' // Se seu projeto tiver um script build
+                bat 'npm run build' // Se seu projeto tiver um script build
             }
         }
         
         stage('Deploy para S3') {
             steps {
                 withAWS(region: env.AWS_REGION, credentials: 'AKIAR7HWXUVMH2T2PUJF') {
-                    sh """
-                    aws s3 sync ./ s3://${env.S3_BUCKET} \
-                    --exclude "node_modules/*" \
-                    --exclude ".git/*" \
+                    bat """
+                    aws s3 sync .\\ s3://%S3_BUCKET% ^
+                    --exclude "node_modules\\*" ^
+                    --exclude ".git\\*" ^
                     --delete
                     """
                 }

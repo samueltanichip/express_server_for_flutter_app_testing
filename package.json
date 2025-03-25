@@ -7,7 +7,8 @@
     "test": "jest --coverage --verbose",
     "test:watch": "jest --watchAll",
     "start": "forever --minUptime 5000 --spinSleepTime 3000 start server.js",
-    "server": "pm2 start server.js --watch"
+    "server": "pm2 start server.js --watch",
+    "build": "echo 'Nenhuma etapa de build necessária para este projeto'"
   },
   "dependencies": {
     "express": "^4.18.2"

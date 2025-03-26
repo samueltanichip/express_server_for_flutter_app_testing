@@ -1,57 +1,39 @@
 pipeline {
     agent any
-
-    tools {
-        nodejs 'nodejs' // Nome exato da instalação do Node no Jenkins
-    }
-
+    
     environment {
-        // Garante que o sistema encontrará os comandos básicos
+        // Adicione o caminho do sistema ao PATH
         PATH = "C:\\Windows\\System32;${env.PATH}"
     }
-
+    
     stages {
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', 
-                         branches: [[name: '*/main']],
-                         userRemoteConfigs: [[url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git']]])
+                git branch: 'main', 
+                url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
             }
         }
-
-        stage('Install Dependencies') {
+        
+        stage('Instalar Dependências') {
             steps {
-                script {
-                    // Verifica se os comandos básicos funcionam
-                    bat 'where cmd'
-                    bat 'where node'
-                    bat 'where npm'
-                    
-                    // Instala dependências
-                    bat 'npm install'
-                }
+                // Use o caminho completo para o npm
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" install'
             }
         }
-
-        stage('Start Application') {
+        
+        stage('Build') {
             steps {
-                script {
-                    // Inicia a aplicação
-                    bat 'node server.js'
-                    
-                    // Alternativa com PM2 se necessário
-                    // bat 'npm install -g pm2'
-                    // bat 'pm2 start server.js'
-                }
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
             }
         }
     }
-
+    
     post {
-        always {
-            echo 'Pipeline concluído'
-            // Opcional: matar processos node se necessário
-            // bat 'taskkill /F /IM node.exe /T'
+        success {
+            echo 'Pipeline executado com sucesso!'
+        }
+        failure {
+            echo 'Falha na execução do pipeline'
         }
     }
 }

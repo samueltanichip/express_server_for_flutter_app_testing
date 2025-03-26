@@ -2,8 +2,6 @@ pipeline {
     agent any
     
     environment {
-        AWS_REGION = 'us-east-1'
-        S3_BUCKET = 'jenkins-teste'
         // Adicione o caminho do sistema ao PATH
         PATH = "C:\\Windows\\System32;${env.PATH}"
     }
@@ -28,27 +26,14 @@ pipeline {
                 bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
             }
         }
-        
-        stage('Deploy para S3') {
-            steps {
-                withAWS(region: env.AWS_REGION, credentials: '203891579') {
-                    bat """
-                    "C:\\Program Files\\Amazon\\AWSCLIV2\\aws.exe" s3 sync .\\ s3://%S3_BUCKET% ^
-                    --exclude "node_modules\\*" ^
-                    --exclude ".git\\*" ^
-                    --delete
-                    """
-                }
-            }
-        }
     }
     
     post {
         success {
-            echo 'Deploy para S3 concluído com sucesso!'
+            echo 'Pipeline executado com sucesso!'
         }
         failure {
-            echo 'Falha no deploy para S3'
+            echo 'Falha na execução do pipeline'
         }
     }
 }

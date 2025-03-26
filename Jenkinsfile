@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                withCredentials([string(credentialsId: 'pat', variable: 'GITHUB_TOKEN')]) {
+                withCredentials([string(credentialsId: 'samuelTani210220001', variable: 'GITHUB_TOKEN')]) {
                     // URL modificada para incluir autenticação via PAT
                     git branch: 'main', 
                     url: "https://${env.GITHUB_TOKEN}@github.com/samueltanichip/express_server_for_flutter_app_testing.git"

@@ -20,8 +20,8 @@ pipeline {
                     branches: [[name: '*/main']],
                     extensions: [[$class: 'CleanBeforeCheckout']],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/samueltanichip/tutorial-aula-curso-react19-typescript.git',
-                        credentialsId: 'ssh_key'
+                        url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git',
+                        credentialsId: 'credentials'
                     ]]
                 ])
             }
@@ -32,12 +32,9 @@ pipeline {
                 script {
                     bat '''
                         @echo off
-                        echo Verificando ambiente Windows...
-                        where cmd
+                        echo Configurando ambiente...
                         where node
                         where npm
-                        where npx
-                        echo Configurando npm...
                         npm config set cache "${WORKSPACE}\\.npm" --global
                     '''
                 }
@@ -49,10 +46,6 @@ pipeline {
                 script {
                     bat '''
                         @echo off
-                        echo Verificando versões...
-                        node -v
-                        npm -v
-                        
                         echo Limpando cache npm...
                         npm cache clean --force
                         
@@ -72,20 +65,34 @@ pipeline {
                 }
             }
         }
-        
+
+        stage('Verify Project Structure') {
+            steps {
+                script {
+                    bat '''
+                        @echo off
+                        echo Verificando estrutura do projeto...
+                        echo Conteúdo da pasta src/components:
+                        dir src\\components || echo "Pasta não encontrada"
+                        echo Conteúdo do arquivo tailwind.config.js:
+                        type tailwind.config.js || echo "Arquivo não encontrado"
+                    '''
+                }
+            }
+        }
+
         stage('Build Application') {
             steps {
                 script {
                     bat '''
                         @echo off
-                        echo Executando build com npx...
+                        echo Executando build...
                         npx next build
                         
-                        echo Verificando saída do build...
                         if exist .next (
-                            echo Build gerado com sucesso
+                            echo Build realizado com sucesso!
                         ) else (
-                            echo Falha no build - pasta .next não encontrada
+                            echo Falha no build
                             exit 1
                         )
                     '''

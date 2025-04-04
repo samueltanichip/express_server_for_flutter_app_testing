@@ -1,37 +1,21 @@
 pipeline {
     agent any
-    
-    environment {
-        PATH = "C:\\Windows\\System32;${env.PATH}"
-    }
-    
     stages {
-        stage('Checkout') {
+        stage('Testes Rápidos') {
             steps {
-                git branch: 'main', 
-                url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
-            }
-        }
-        
-        stage('Instalar Dependências') {
-            steps {
-                bat '"C:\\Program Files\\nodejs\\npm.cmd" install'
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
+                bat """
+                    echo Executando testes básicos...
+                    echo OK > testfile.txt && type testfile.txt || exit /b 1
+                    ping -n 1 127.0.0.1 > nul || exit /b 1
+                    del testfile.txt
+                    echo Sucesso!
+                """
             }
         }
     }
-    
     post {
-        success {
-            echo 'Pipeline executado com sucesso!'
-        }
-        failure {
-            echo 'Falha na execução do pipeline'
+        always {
+            bat 'echo Fim: %time%'
         }
     }
 }

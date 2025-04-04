@@ -1,11 +1,5 @@
 @Library('shared_libraries@branch_teste') _
 
-// Importa os métodos da biblioteca compartilhada, se necessário
-import com.seuPacote.checkoutStage
-import com.seuPacote.installDependencies
-import com.seuPacote.buildStage
-import com.seuPacote.pipelineUtils
-
 pipeline {
     agent any
     environment {
@@ -17,7 +11,11 @@ pipeline {
             steps {
                 script {
                     // ① CHAMADA corrigida para checkoutStage
-                    checkoutStage('https://github.com/samueltanichip/express_server_for_flutter_app_testing.git', 'main', 'credentials')
+                    checkoutStage(
+                        repoUrl: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git',
+                        branch: 'main',
+                        credentialsId: 'credentials'
+                    )
                 }
             }
         }
@@ -25,7 +23,7 @@ pipeline {
         stage('Instalar Dependências') {
             steps {
                 script {
-                    // ② CHAMADA à installDependencies
+                    // ② CHAMADA corrigida para installDependencies
                     installDependencies()
                 }
             }
@@ -34,7 +32,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // ③ CHAMADA à buildStage
+                    // ③ CHAMADA corrigida para buildStage
                     buildStage()
                 }
             }
@@ -44,13 +42,13 @@ pipeline {
     post {
         success {
             script {
-                // ④ CHAMADA à pipelineUtils
+                // ④ CHAMADA corrigida para pipelineUtils
                 pipelineUtils.successPostAction()
             }
         }
         failure {
             script {
-                // ⑤ CHAMADA à pipelineUtils
+                // ⑤ CHAMADA corrigida para pipelineUtils
                 pipelineUtils.failurePostAction()
             }
         }

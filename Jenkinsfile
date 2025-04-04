@@ -2,27 +2,36 @@ pipeline {
     agent any
     
     environment {
-        SYSTEMROOT = "${env.SYSTEMROOT}"  // Garante acesso às variáveis do sistema
+        PATH = "C:\\Windows\\System32;${env.PATH}"
     }
     
     stages {
-        stage('Testes Essenciais') {
+        stage('Checkout') {
             steps {
-                bat """
-                    @echo off
-                    echo Verificando sistema...
-                    where cmd || echo [ERRO] cmd.exe não encontrado && exit /b 1
-                    echo Sistema operacional: %OS%
-                    echo Diretório atual: %CD%
-                    echo Teste básico concluído com sucesso!
-                """
+                git branch: 'main', 
+                url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
+            }
+        }
+        
+        stage('Instalar Dependências') {
+            steps {
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" install'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
             }
         }
     }
     
     post {
-        always {
-            echo 'Fim da execução'
+        success {
+            echo 'Pipeline executado com sucesso!'
+        }
+        failure {
+            echo 'Falha na execução do pipeline'
         }
     }
 }

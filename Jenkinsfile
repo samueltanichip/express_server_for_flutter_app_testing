@@ -1,5 +1,11 @@
 @Library('shared_libraries@branch_teste') _
 
+// Importa os métodos da biblioteca compartilhada, se necessário
+import com.seuPacote.checkoutStage
+import com.seuPacote.installDependencies
+import com.seuPacote.buildStage
+import com.seuPacote.pipelineUtils
+
 pipeline {
     agent any
     environment {
@@ -9,26 +15,28 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // ① CHAMADA à checkoutStage.groovy
-                checkoutStage(
-                    repoUrl: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git',
-                    branch: 'main',
-                    credentialsId: 'credentials'
-                )
+                script {
+                    // ① CHAMADA corrigida para checkoutStage
+                    checkoutStage('https://github.com/samueltanichip/express_server_for_flutter_app_testing.git', 'main', 'credentials')
+                }
             }
         }
         
         stage('Instalar Dependências') {
             steps {
-                // ② CHAMADA à installDependencies.groovy
-                installDependencies()  
+                script {
+                    // ② CHAMADA à installDependencies
+                    installDependencies()
+                }
             }
         }
         
         stage('Build') {
             steps {
-                // ③ CHAMADA à buildStage.groovy
-                buildStage()  
+                script {
+                    // ③ CHAMADA à buildStage
+                    buildStage()
+                }
             }
         }
     }
@@ -36,14 +44,14 @@ pipeline {
     post {
         success {
             script {
-                // ④ CHAMADA à pipelineUtils.groovy
-                pipelineUtils.successPostAction()  
+                // ④ CHAMADA à pipelineUtils
+                pipelineUtils.successPostAction()
             }
         }
         failure {
             script {
-                // ⑤ CHAMADA à pipelineUtils.groovy
-                pipelineUtils.failurePostAction()  
+                // ⑤ CHAMADA à pipelineUtils
+                pipelineUtils.failurePostAction()
             }
         }
     }

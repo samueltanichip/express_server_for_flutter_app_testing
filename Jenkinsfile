@@ -1,4 +1,4 @@
-@Library('shared_libraries@branch_teste')
+@Library('shared_libraries')
 
 pipeline {
     agent any

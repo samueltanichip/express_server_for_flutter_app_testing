@@ -1,3 +1,5 @@
+@Library('nome-da-sua-shared-library') _  // Carrega a lib (configure no Jenkins)
+
 pipeline {
     agent any
     
@@ -8,30 +10,23 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', 
-                url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
+                checkoutStage(
+                    repoUrl: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git',
+                    branch: 'main'
+                )
             }
         }
         
-        stage('Instalar Dependências') {
+        stage('Instalar e Buildar') {
             steps {
-                bat '"C:\\Program Files\\nodejs\\npm.cmd" install'
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
+                installDependencies()
+                buildStage()
             }
         }
     }
     
     post {
-        success {
-            echo 'Pipeline executado com sucesso!'
-        }
-        failure {
-            echo 'Falha na execução do pipeline'
-        }
+        success { pipelineUtils.successPostAction() }
+        failure { pipelineUtils.failurePostAction() }
     }
 }

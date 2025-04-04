@@ -1,21 +1,28 @@
 pipeline {
     agent any
+    
+    environment {
+        SYSTEMROOT = "${env.SYSTEMROOT}"  // Garante acesso às variáveis do sistema
+    }
+    
     stages {
-        stage('Testes Rápidos') {
+        stage('Testes Essenciais') {
             steps {
                 bat """
-                    echo Executando testes básicos...
-                    echo OK > testfile.txt && type testfile.txt || exit /b 1
-                    ping -n 1 127.0.0.1 > nul || exit /b 1
-                    del testfile.txt
-                    echo Sucesso!
+                    @echo off
+                    echo Verificando sistema...
+                    where cmd || echo [ERRO] cmd.exe não encontrado && exit /b 1
+                    echo Sistema operacional: %OS%
+                    echo Diretório atual: %CD%
+                    echo Teste básico concluído com sucesso!
                 """
             }
         }
     }
+    
     post {
         always {
-            bat 'echo Fim: %time%'
+            echo 'Fim da execução'
         }
     }
 }

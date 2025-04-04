@@ -1,4 +1,4 @@
-@Library('nome-da-sua-shared-library') _  // Carrega a lib (configure no Jenkins)
+@Library('shared_libraries@branch_teste')
 
 pipeline {
     agent any

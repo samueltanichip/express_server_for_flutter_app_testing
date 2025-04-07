@@ -1,16 +1,15 @@
-properties([
-    pipelineTriggers([
-        pollSCM('* * * * *') // Faz polling a cada 1 minuto
-    ])
-])
-
-pipeline {
+pipeline { 
     agent any
     
     environment {
         PATH = "C:\\Windows\\System32;${env.PATH}"
     }
-    
+
+    triggers {
+        // Faz o polling do SCM (Git) a cada 1 minuto
+        pollSCM('* * * * *')
+    }
+
     stages {
         stage('Checkout') {
             steps {

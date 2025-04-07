@@ -1,12 +1,15 @@
-pipeline { 
+pipeline {
     agent any
-    
+
     environment {
         PATH = "C:\\Windows\\System32;${env.PATH}"
     }
 
     triggers {
-        // Faz o polling do SCM (Git) a cada 1 minuto
+        // Só faz polling se for a branch main
+        when {
+            expression { env.BRANCH_NAME == 'main' }
+        }
         pollSCM('* * * * *')
     }
 
@@ -17,20 +20,20 @@ pipeline {
                 url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
             }
         }
-        
+
         stage('Instalar Dependências') {
             steps {
                 bat '"C:\\Program Files\\nodejs\\npm.cmd" install'
             }
         }
-        
+
         stage('Build') {
             steps {
                 bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
             }
         }
     }
-    
+
     post {
         success {
             echo 'Pipeline executado com sucesso!'

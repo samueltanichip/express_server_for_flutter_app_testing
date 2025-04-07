@@ -1,3 +1,9 @@
+properties([
+    pipelineTriggers([
+        pollSCM('* * * * *') // Faz polling a cada 1 minuto
+    ])
+])
+
 pipeline {
     agent any
     

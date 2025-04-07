@@ -6,14 +6,14 @@ pipeline {
     }
 
     triggers {
-        // Faz polling a cada 1 minuto
-        pollSCM('* * * * *')
+        pollSCM('* * * * *') // Faz polling a cada 1 minuto
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout main') {
             steps {
-                checkout scm
+                git branch: 'main', 
+                    url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
             }
         }
 
@@ -32,10 +32,10 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline executado com sucesso na branch ${env.BRANCH_NAME}!"
+            echo "Pipeline executado com sucesso!"
         }
         failure {
-            echo "Falha na execução do pipeline na branch ${env.BRANCH_NAME}"
+            echo "Falha na execução do pipeline!"
         }
     }
 }

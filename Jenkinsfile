@@ -1,56 +1,37 @@
-@Library('shared_libraries@branch_teste') _
-
 pipeline {
     agent any
+    
     environment {
-        PATH = "C:\\Windows\\System32;C:\\Program Files\\nodejs;${env.PATH}"
+        PATH = "C:\\Windows\\System32;${env.PATH}"
     }
     
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    // ① CHAMADA corrigida para checkoutStage
-                    checkoutStage(
-                        repoUrl: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git',
-                        branch: 'main',
-                        credentialsId: 'credentials'
-                    )
-                }
+                git branch: 'main', 
+                url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
             }
         }
         
         stage('Instalar Dependências') {
             steps {
-                script {
-                    // ② CHAMADA corrigida para installDependencies
-                    installDependencies()
-                }
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" install'
             }
         }
         
         stage('Build') {
             steps {
-                script {
-                    // ③ CHAMADA corrigida para buildStage
-                    buildStage()
-                }
+                bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
             }
         }
     }
     
     post {
         success {
-            script {
-                // ④ CHAMADA corrigida para pipelineUtils
-                pipelineUtils.successPostAction()
-            }
+            echo 'Pipeline executado com sucesso!'
         }
         failure {
-            script {
-                // ⑤ CHAMADA corrigida para pipelineUtils
-                pipelineUtils.failurePostAction()
-            }
+            echo 'Falha na execução do pipeline'
         }
     }
 }

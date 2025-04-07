@@ -3,5 +3,3 @@
 How to run:
 
 npm install
-
-teste polling 

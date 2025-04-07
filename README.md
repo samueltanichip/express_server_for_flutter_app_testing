@@ -2,7 +2,3 @@
 
 How to run:
 
-npm install
-
-te
-2121

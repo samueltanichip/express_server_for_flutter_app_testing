@@ -3,3 +3,4 @@
 How to run:
 
 npm install
+teste

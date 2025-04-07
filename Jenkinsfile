@@ -6,18 +6,14 @@ pipeline {
     }
 
     triggers {
-        // Só faz polling se for a branch main
-        when {
-            expression { env.BRANCH_NAME == 'main' }
-        }
+        // Faz polling a cada 1 minuto
         pollSCM('* * * * *')
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', 
-                url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
+                checkout scm
             }
         }
 
@@ -36,10 +32,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline executado com sucesso!'
+            echo "Pipeline executado com sucesso na branch ${env.BRANCH_NAME}!"
         }
         failure {
-            echo 'Falha na execução do pipeline'
+            echo "Falha na execução do pipeline na branch ${env.BRANCH_NAME}"
         }
     }
 }

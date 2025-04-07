@@ -5,6 +5,11 @@ pipeline {
         PATH = "C:\\Windows\\System32;${env.PATH}"
     }
 
+    triggers {
+        // Faz o polling a cada 1 minuto
+        pollSCM('* * * * *')
+    }
+
     stages {
         stage('Checkout main') {
             steps {

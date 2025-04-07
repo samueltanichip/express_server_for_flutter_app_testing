@@ -19,7 +19,7 @@ const auth = (req, res, next) => {
 
 // Rotas
 app.get('/', (req, res) => {
-  res.send('testeeee');
+  res.send('testeeeiowieowe');
 });
 
 app.get('/testgetrequest', (req, res) => {

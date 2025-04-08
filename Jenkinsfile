@@ -42,8 +42,7 @@ pipeline {
                 """,
                 to: 'samueltani.chip@gmail.com',
                 replyTo: 'samueltanifrancisco@gmail.com',
-                from: 'samueltanifrancisco@gmail.com',
-                credentialsId: 'email_credentials' // <- usando credenciais do Jenkins
+                from: 'samueltanifrancisco@gmail.com'
             )
         }
         success {

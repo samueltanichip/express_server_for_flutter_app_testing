@@ -44,7 +44,7 @@ pipeline {
                         <li><strong>Veja detalhes:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
                     </ul>
                 """,
-                to: 'samueltani@chiptronic.com.br'
+                to: 'samueltanifrancisco@gmail.com'
             )
         }
 
@@ -61,7 +61,7 @@ pipeline {
                         <li><strong>Veja detalhes:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
                     </ul>
                 """,
-                to: 'samueltani@chiptronic.com.br'
+                to: 'samueltanifrancisco@gmail.com'
             )
         }
     }

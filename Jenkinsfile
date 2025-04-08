@@ -6,7 +6,6 @@ pipeline {
     }
 
     triggers {
-        // Faz o polling a cada 1 minuto
         pollSCM('* * * * *')
     }
 
@@ -33,10 +32,37 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline executado com sucesso!"
+            emailext (
+                mimeType: 'text/html',
+                subject: "SUCESSO - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <h2>Build Finalizado com Sucesso!</h2>
+                    <ul>
+                        <li><strong>Job:</strong> ${env.JOB_NAME}</li>
+                        <li><strong>Build:</strong> #${env.BUILD_NUMBER}</li>
+                        <li><strong>Status:</strong> SUCESSO</li>
+                        <li><strong>Veja detalhes:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
+                    </ul>
+                """,
+                to: 'samueltani@chiptronic.com.br'
+            )
         }
+
         failure {
-            echo "Falha na execução do pipeline!"
+            emailext (
+                mimeType: 'text/html',
+                subject: "FALHA - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <h2>Build Falhou!</h2>
+                    <ul>
+                        <li><strong>Job:</strong> ${env.JOB_NAME}</li>
+                        <li><strong>Build:</strong> #${env.BUILD_NUMBER}</li>
+                        <li><strong>Status:</strong> FALHA</li>
+                        <li><strong>Veja detalhes:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
+                    </ul>
+                """,
+                to: 'samueltani@chiptronic.com.br'
+            )
         }
     }
 }

@@ -1,20 +1,10 @@
 pipeline {
     agent any
 
-    environment {
-        PATH = "C:\\Windows\\System32;${env.PATH}"
-    }
-
-    triggers {
-        pollSCM('* * * * *')
-    }
-
     stages {
         stage('Checkout main') {
             steps {
-                git branch: 'main',
-                    credentialsId: 'seu-credential-id',
-                    url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
+                git credentialsId: 'seu-credential-id', url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git', branch: 'main'
             }
         }
 
@@ -49,7 +39,8 @@ pipeline {
                 recipientProviders: [
                     [$class: 'DevelopersRecipientProvider'],
                     [$class: 'RequesterRecipientProvider']
-                ]
+                ],
+                doNotRequireRecipientProviders: true
             )
         }
     }

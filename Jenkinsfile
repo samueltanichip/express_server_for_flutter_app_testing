@@ -1,22 +1,33 @@
 pipeline {
     agent any
 
+    environment {
+        NODEJS_HOME = tool name: 'NodeJS_20', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+        PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+    }
+
     stages {
-        stage('Checkout main') {
+        stage('Checkout') {
             steps {
-                git credentialsId: 'seu-credential-id', url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git', branch: 'main'
+                git branch: 'branch_teste', url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
             }
         }
 
-        stage('Instalar Dependências') {
+        stage('Install dependencies') {
             steps {
-                bat '"C:\\Program Files\\nodejs\\npm.cmd" install'
+                sh 'npm install'
+            }
+        }
+
+        stage('Run tests') {
+            steps {
+                sh 'npm test'
             }
         }
 
         stage('Build') {
             steps {
-                bat '"C:\\Program Files\\nodejs\\npm.cmd" run build'
+                sh 'npm run build'
             }
         }
     }
@@ -39,8 +50,7 @@ pipeline {
                 recipientProviders: [
                     [$class: 'DevelopersRecipientProvider'],
                     [$class: 'RequesterRecipientProvider']
-                ],
-                doNotRequireRecipientProviders: true
+                ]
             )
         }
     }

@@ -40,10 +40,9 @@ pipeline {
                         <li><strong>Veja detalhes:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
                     </ul>
                 """,
-                to: 'samueltanifrancisco@gmail.com',
+                to: 'samueltani.chip@gmail.com',
                 replyTo: 'samueltanifrancisco@gmail.com',
-                from: 'samueltanifrancisco@gmail.com',
-                smtpCredentialsId: 'credencial_email'
+                from: 'samueltanifrancisco@gmail.com'
             )
         }
         success {

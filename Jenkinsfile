@@ -40,7 +40,7 @@ pipeline {
                         <li><strong>Veja detalhes:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
                     </ul>
                 """,
-                to: 'samueltani.chip@gmail.com',
+                to: 'samueltani@chiptronic.com.br',
                 replyTo: 'samueltanifrancisco@gmail.com',
                 from: 'samueltanifrancisco@gmail.com'
             )

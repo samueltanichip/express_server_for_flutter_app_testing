@@ -2,24 +2,32 @@ pipeline {
     agent any
 
     environment {
-        NODEJS_HOME = tool name: 'NodeJS_20', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
-        PATH = "${env.NODEJS_HOME}/bin:${env.PATH}"
+        NODE_VERSION = '20.11.1'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'branch_teste', url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
+                checkout scm
             }
         }
 
-        stage('Install dependencies') {
+        stage('Instalar NodeJS') {
+            steps {
+                script {
+                    def nodeHome = tool name: "NodeJS_${NODE_VERSION}", type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+                    env.PATH = "${nodeHome}/bin:${env.PATH}"
+                }
+            }
+        }
+
+        stage('Instalar Dependências') {
             steps {
                 sh 'npm install'
             }
         }
 
-        stage('Run tests') {
+        stage('Rodar Testes') {
             steps {
                 sh 'npm test'
             }
@@ -46,11 +54,7 @@ pipeline {
                         <li><strong>Veja detalhes:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
                     </ul>
                 """,
-                to: 'samueltanifrancisco@gmail.com',
-                recipientProviders: [
-                    [$class: 'DevelopersRecipientProvider'],
-                    [$class: 'RequesterRecipientProvider']
-                ]
+                to: 'samueltanifrancisco@gmail.com'
             )
         }
     }

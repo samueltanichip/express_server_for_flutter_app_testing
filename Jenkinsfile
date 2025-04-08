@@ -45,7 +45,11 @@ pipeline {
                         <li><strong>Veja detalhes:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
                     </ul>
                 """,
-                to: 'samueltanifrancisco@gmail.com'
+                to: 'samueltanifrancisco@gmail.com',
+                recipientProviders: [
+                    [$class: 'DevelopersRecipientProvider'],
+                    [$class: 'RequesterRecipientProvider']
+                ]
             )
         }
     }

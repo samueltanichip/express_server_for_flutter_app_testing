@@ -1,4 +1,4 @@
-pipeline {
+kipipeline {
     agent any
 
     environment {
@@ -50,7 +50,7 @@ pipeline {
                     """,
                     to: 'samueltani@chiptronic.com.br',
                     replyTo: 'samueltanifrancisco@gmail.com',
-                    from: 'samueltanifrancisco@gmail.com'
+                    from: 'jenkins teste'
                 )
             }
         }

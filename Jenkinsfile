@@ -1,5 +1,4 @@
-
-testepipeline {
+pipeline {
     agent any
 
     environment {

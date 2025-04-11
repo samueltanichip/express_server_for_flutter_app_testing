@@ -1,4 +1,4 @@
-kipipeline {
+pipeline {
     agent any
 
     environment {

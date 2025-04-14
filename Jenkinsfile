@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     triggers {
-        pollSCM('* * * * *') // Verifica o repositório a cada minuto
+        pollSCM('* * * * *') 
     }
 
     environment {

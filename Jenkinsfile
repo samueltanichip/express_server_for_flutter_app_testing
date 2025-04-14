@@ -4,7 +4,8 @@ pipeline {
     agent any
 
     triggers { 
-        pollSCM('* * * * *') teste
+        pollSCM('* * * * *') 
+    
     }
 
     environment {

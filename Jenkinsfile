@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('* * * * *') // Verifica o repositório a cada minuto
+    }
+
     environment {
         PATH = "C:\\Windows\\System32;${env.PATH}"
     }

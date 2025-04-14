@@ -3,9 +3,9 @@
 pipeline {
     agent any
 
-  //  triggers {
-  //      pollSCM('* * * * *') 
-  //  }
+    triggers {
+        pollSCM('* * * * *') 
+    }
 
     environment {
         PATH = "C:\\Windows\\System32;${env.PATH}"

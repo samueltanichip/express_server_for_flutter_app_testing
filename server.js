@@ -19,15 +19,15 @@ const auth = (req, res, next) => {
 
 // Rotas
 app.get('/', (req, res) => {
-  res.send('testeeeiowieowe');
+  res.send('teste');
 });
 
 app.get('/testgetrequest', (req, res) => {
-  res.send('Hello World!');
+  res.send('teste');
 });
 
 app.get('/testwithheader', auth, (req, res) => {
-  res.send('Hello World! with header');
+  res.send('teste monstro');
 });
 
 app.post('/testwithheader', auth, (req, res) => {

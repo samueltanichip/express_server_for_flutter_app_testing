@@ -32,7 +32,7 @@ app.get('/testwithheader', auth, (req, res) => {
 
 app.post('/testwithheader', auth, (req, res) => {
   // Agora o bodyParser.json() está aplicado globalmente
-  res.send(`Hello World! with header n body ${req.body.name}`);
+  res.send(`olá mundo! with header n body ${req.body.name}`);
 });
 
 // Exportação para testes

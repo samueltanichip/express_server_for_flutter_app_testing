@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        PATH = "C:\\Windows\\System32;${env.PATH}"
-        CHANGES = ''
+        PATH = "C:\\Program Files\\Git\\bin;C:\\Windows\\System32;${env.PATH}"
     }
 
     stages {
@@ -11,13 +10,6 @@ pipeline {
             steps {
                 git branch: 'main', 
                     url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
-                
-                script {
-                    CHANGES = bat(
-                        script: 'git log -n 10 --pretty=format:"- %h %an: %s"',
-                        returnStdout: true
-                    ).trim()
-                }
             }
         }
 
@@ -38,6 +30,14 @@ pipeline {
         always {
             script {
                 def buildTime = new Date().format("dd/MM/yyyy HH:mm:ss", TimeZone.getTimeZone('America/Sao_Paulo'))
+
+                def changes = ""
+                for (changeLog in currentBuild.changeSets) {
+                    for (entry in changeLog.items) {
+                        changes += "- ${entry.author} - ${entry.msg}\n"
+                    }
+                }
+
                 emailext(
                     mimeType: 'text/html',
                     subject: "${currentBuild.currentResult} - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
@@ -56,7 +56,7 @@ pipeline {
                             <li><strong>Veja detalhes:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
                         </ul>
                         <h3>Commits incluídos nesta build:</h3>
-                        <pre>${CHANGES}</pre>
+                        <pre>${changes}</pre>
                     """,
                     to: 'samueltani@chiptronic.com.br',
                     replyTo: 'samueltanifrancisco@gmail.com',

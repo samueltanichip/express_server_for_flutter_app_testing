@@ -1,4 +1,4 @@
-pipeline {
+pipeline { 
     agent any
 
     environment {
@@ -47,6 +47,10 @@ pipeline {
                             <li><strong>Mensagem do Commit:</strong> ${env.GIT_COMMIT_MESSAGE}</li>
                             <li><strong>Veja detalhes:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></li>
                         </ul>
+                        <h3>Commits incluídos nesta build:</h3>
+                        <pre>
+                            ${CHANGES_SINCE_LAST_SUCCESS, format="%a <%ae> - %h: %m"}
+                        </pre>
                     """,
                     to: 'samueltani@chiptronic.com.br',
                     replyTo: 'samueltanifrancisco@gmail.com',

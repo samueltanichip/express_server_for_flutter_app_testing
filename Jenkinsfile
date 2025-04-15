@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         PATH = "C:\\Windows\\System32;${env.PATH}"
+        CHANGES = ''
     }
 
     stages {
@@ -10,6 +11,13 @@ pipeline {
             steps {
                 git branch: 'main', 
                     url: 'https://github.com/samueltanichip/express_server_for_flutter_app_testing.git'
+                
+                script {
+                    CHANGES = bat(
+                        script: 'git log -n 10 --pretty=format:"- %h %an: %s"',
+                        returnStdout: true
+                    ).trim()
+                }
             }
         }
 

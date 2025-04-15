@@ -60,7 +60,7 @@ pipeline {
                     """,
                     to: 'samueltani@chiptronic.com.br',
                     replyTo: 'samueltanifrancisco@gmail.com',
-                    from: 'jenkins teste'
+                    from: 'samueltanifrancisco@gmail.com'
                 )
             }
         }

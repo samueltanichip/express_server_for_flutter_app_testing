@@ -1,4 +1,4 @@
-@Library('shared_library') _  // Nome da biblioteca compartilhada, sem especificar a branch
+@Library('shared_library@main') _
 
 pipeline {
     agent any

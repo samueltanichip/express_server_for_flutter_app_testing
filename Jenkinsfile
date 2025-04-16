@@ -32,7 +32,7 @@ pipeline {
         stage('Build Project') {
             steps {
                 script {
-                    buildProject()  // Chama a função definida no buildProject.groovy da biblioteca
+                    buildProject()  
                 }
             }
         }

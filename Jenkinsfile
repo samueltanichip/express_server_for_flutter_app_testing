@@ -1,22 +1,29 @@
+@Library('shared_libraries@shared_library') _  // Nome da biblioteca e branch
+
 pipeline {
     agent any
 
-    environment {
-        PATH = "C:\\Program Files\\Git\\bin;C:\\Windows\\System32;${env.PATH}"
-    }
-
     stages {
-        stage('Pipeline') {
+        stage('Checkout main') {
             steps {
                 script {
-                    // Chama a função para fazer o checkout da branch principal
-                    checkoutMain()
+                    checkoutMain()  // Chama a função definida no checkoutMain.groovy da biblioteca
+                }
+            }
+        }
 
-                    // Instala as dependências do projeto
-                    installDependencies()
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    installDependencies()  // Chama a função definida no installDependencies.groovy da biblioteca
+                }
+            }
+        }
 
-                    // Realiza a build do projeto
-                    buildProject()
+        stage('Build Project') {
+            steps {
+                script {
+                    buildProject()  // Chama a função definida no buildProject.groovy da biblioteca
                 }
             }
         }
@@ -24,10 +31,16 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline executado com sucesso!"
+            script {
+                echo "Build was successful!"
+                // postBuildReport()  // Função comentada para invalidar
+            }
         }
+
         failure {
-            echo "Falha na execução do pipeline!"
+            script {
+                echo "Build failed!"
+            }
         }
     }
 }

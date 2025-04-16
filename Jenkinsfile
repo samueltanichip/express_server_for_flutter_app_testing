@@ -42,7 +42,7 @@ pipeline {
         success {
             script {
                 echo "Build was successful!"
-                 postBuildReport()  // Função comentada para invalidar
+                 postBuildReport()  
             }
         }
 

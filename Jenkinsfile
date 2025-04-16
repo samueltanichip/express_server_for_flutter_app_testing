@@ -23,12 +23,6 @@ pipeline {
     }
 
     post {
-        always {
-            // A etapa de postBuildReport foi desativada
-            // script {
-            //     postBuildReport()
-            // }
-        }
         success {
             echo "Pipeline executado com sucesso!"
         }

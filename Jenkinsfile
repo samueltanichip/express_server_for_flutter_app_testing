@@ -4,7 +4,7 @@ pipeline {
     agent any
 
     triggers {
-        pollSCM('* * * * *') // Verifica o SCM a cada 1 minuto
+        pollSCM('* * * * *') 
     }
 
     environment {

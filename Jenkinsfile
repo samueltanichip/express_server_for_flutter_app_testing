@@ -8,7 +8,7 @@ pipeline {
     }
 
     environment {
-        // Adicionando diretórios necessários ao PATH
+        
         PATH = "C:\\Program Files\\Git\\bin;C:\\Windows\\System32;${env.PATH}"
     }
 
@@ -16,7 +16,7 @@ pipeline {
         stage('Checkout main') {
             steps {
                 script {
-                    checkoutMain()  // Chama a função definida no checkoutMain.groovy da biblioteca
+                    checkoutMain()  
                 }
             }
         }

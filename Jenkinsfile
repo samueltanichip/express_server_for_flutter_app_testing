@@ -3,6 +3,11 @@
 pipeline {
     agent any
 
+    environment {
+        // Adicionando diretórios necessários ao PATH
+        PATH = "C:\\Program Files\\Git\\bin;C:\\Windows\\System32;${env.PATH}"
+    }
+
     stages {
         stage('Checkout main') {
             steps {

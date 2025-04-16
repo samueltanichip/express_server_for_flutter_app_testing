@@ -3,6 +3,10 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('* * * * *') // Verifica o SCM a cada 1 minuto
+    }
+
     environment {
         // Adicionando diretórios necessários ao PATH
         PATH = "C:\\Program Files\\Git\\bin;C:\\Windows\\System32;${env.PATH}"

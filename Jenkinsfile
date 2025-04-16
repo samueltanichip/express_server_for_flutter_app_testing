@@ -26,7 +26,7 @@ pipeline {
     post {
         always {
             // Relatório pós-build, executado sempre
-            postBuildReport()
+        //    postBuildReport()
         }
         success {
             echo "Pipeline executado com sucesso!"

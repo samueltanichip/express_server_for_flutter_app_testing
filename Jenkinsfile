@@ -9,8 +9,13 @@ pipeline {
         stage('Pipeline') {
             steps {
                 script {
+                    // Chama a função para fazer o checkout da branch principal
                     checkoutMain()
+
+                    // Instala as dependências do projeto
                     installDependencies()
+
+                    // Realiza a build do projeto
                     buildProject()
                 }
             }
@@ -19,8 +24,8 @@ pipeline {
 
     post {
         always {
+            // Relatório pós-build, executado sempre
             script {
-                // Relatório pós-build, executado sempre
               //  postBuildReport()
             }
         }
@@ -32,3 +37,4 @@ pipeline {
         }
     }
 }
+

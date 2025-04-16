@@ -24,7 +24,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    installDependencies()  // Chama a função definida no installDependencies.groovy da biblioteca
+                    installDependencies()  
                 }
             }
         }

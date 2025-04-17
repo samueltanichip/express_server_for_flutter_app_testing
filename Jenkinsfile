@@ -8,7 +8,6 @@ pipeline {
     }
 
     environment {
-        
         PATH = "C:\\Program Files\\Git\\bin;C:\\Windows\\System32;${env.PATH}"
     }
 
@@ -16,7 +15,12 @@ pipeline {
         stage('Checkout main') {
             steps {
                 script {
-                    checkoutMain()  
+                    checkout([$class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        extensions: [[$class: 'SparseCheckoutPaths', 
+                                      sparseCheckoutPaths: [[path: 'shared_library/']]]], // Limita o checkout
+                        userRemoteConfigs: [[url: 'https://meurepo.git']]
+                    ])
                 }
             }
         }
@@ -42,7 +46,7 @@ pipeline {
         success {
             script {
                 echo "Build was successful!"
-                 postBuildReport()  
+                postBuildReport()  
             }
         }
 

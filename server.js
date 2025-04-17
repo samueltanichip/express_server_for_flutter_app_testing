@@ -27,7 +27,7 @@ app.get('/testgetrequest', (req, res) => {
 });
 
 app.get('/testwithheader', auth, (req, res) => {
-  res.send('teste');
+  res.send('teste polling');
 });
 
 app.post('/testwithheader', auth, (req, res) => {

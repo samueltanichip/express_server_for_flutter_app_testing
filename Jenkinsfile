@@ -3,10 +3,6 @@
 pipeline {
     agent any
 
-    triggers {
-        pollSCM('* * * * *') 
-    }
-
     environment {
         
         PATH = "C:\\Program Files\\Git\\bin;C:\\Windows\\System32;${env.PATH}"

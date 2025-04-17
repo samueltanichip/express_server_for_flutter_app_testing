@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/testgetrequest', (req, res) => {
-  res.send('teste');
+  res.send('teste polling');
 });
 
 app.get('/testwithheader', auth, (req, res) => {

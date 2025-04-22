@@ -4,23 +4,22 @@ pipeline {
     agent any
 
     environment {
-        
         PATH = "C:\\Program Files\\Git\\bin;C:\\Windows\\System32;${env.PATH}"
     }
 
- //   stages {
- //       stage('Checkout main') {
- //           steps {
-//                script {
- //                   checkoutMain()  
- //               }
- //           }
- //       }
+    stages {
+        stage('Checkout main') {
+            steps {
+                script {
+                    checkout scm  // Substituindo checkoutMain() por checkout scm
+                }
+            }
+        }
 
         stage('Install Dependencies') {
             steps {
                 script {
-                    installDependencies()  
+                    installDependencies()  // Continuando a usar a função da biblioteca para instalar dependências
                 }
             }
         }
@@ -28,7 +27,7 @@ pipeline {
         stage('Build Project') {
             steps {
                 script {
-                    buildProject()  
+                    buildProject()  // Continuando a usar a função da biblioteca para build do projeto
                 }
             }
         }
@@ -38,7 +37,7 @@ pipeline {
         success {
             script {
                 echo "Build was successful!"
-                 postBuildReport()  
+                postBuildReport()  // Chamada para função da biblioteca
             }
         }
 
